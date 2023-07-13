@@ -11,8 +11,14 @@ class Bag():
     """Classe du Sac du joueur"""
     def __init__(self, save):
         self.save_db = save
-        data = np.array(self.save_db.cursor().execute("SELECT * FROM bag").fetchall())
-        self.contents = dict(zip(data[:,0], data[:,1])) if data != [] else {}
+        # print(self.save_db.cursor().execute("SELECT * FROM bag").fetchall())
+        # data = np.array(self.save_db.cursor().execute("SELECT * FROM bag").fetchall())
+        # print(data)
+        # print(data[:,0])
+        # self.contents = dict(zip(data[:,0], data[:,1])) if data != [] else {}
+        contents = self.save_db.cursor().execute("SELECT * FROM bag").fetchall()
+        contents.reverse()                  # Conservation de l'ordre précédent
+        self.contents = dict(contents) if contents != [] else {}
 
     def pickup_object(self, mapobject):
         """Incrémentation de la quantité d'un objet lorsqu'il est ramassé"""
