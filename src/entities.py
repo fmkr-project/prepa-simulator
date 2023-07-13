@@ -11,6 +11,7 @@ import save
 import debug
 
 
+
 class Entity(pg.sprite.Sprite):
     """Classe des objets mouvants comme le joueur et les PNJs"""
     # Constantes de mouvement
@@ -30,6 +31,7 @@ class Entity(pg.sprite.Sprite):
     "-1,1" : "down-left",
     "-1,0" : "left",
     "-1,-1" : "up-left"}
+
 
     def __init__(self, game, id, texture = "m2"):
         super().__init__()
@@ -63,20 +65,24 @@ class Entity(pg.sprite.Sprite):
         self.can_move = True            # Le joueur est capable de bouger
         self.boop = False               # Le joueur est en collision
 
+
     def draw(self):
         """Dessine le sprite du personnage à l'écran"""
         self.game.screen.blit(self.image, self.rect)
     
+
     def get_image(self, x, y):
         """Retourne une partie de l'image du joueur"""
         image = pg.Surface([32, 32])
         image.blit(self.spritesheet, (0, 0), (x, y, 32, 32))
         return(image)
 
+
     def save(self):
         """Sauvegarde lors de la fermeture du jeu"""
         save.save_config("entities", player = dict(map_id = self.game.map_manager.map_id, position = self.position, speed = self.base_walk_speed, stamina = self.stamina, cash = self.cash))
     #TODO Sauvegarde des PNJs
+
 
     def update(self):
         """Mise à jour graphique"""
@@ -92,12 +98,14 @@ class Entity(pg.sprite.Sprite):
                 self.end_warp()
                 self.is_warping = False
                 self.can_move = True
-    
+                
+
     def change_animation(self, direction):  # change l'image en fonction du sens 'sens'
         """Change l'image de l'animation d'une entité"""
         animation = self.ANIMATION_DICT[str(direction[0])+","+str(direction[1])]
         self.image = self.IMAGES[animation][int(self.current_sprite)]
         self.image.set_colorkey([0, 0, 0])  # transparence
+
 
     def fix_direction(self, direction):
         """Fixe l'orientation d'une entité"""
@@ -106,9 +114,11 @@ class Entity(pg.sprite.Sprite):
         self.image.set_colorkey([0, 0, 0])  # transparence
 
 
+
 class Player(Entity):
     """Classe graphique du joueur"""
     MAX_ENERGY = 300
+
 
     def __init__(self, game, id, texture):
         super().__init__(game, id, texture)
@@ -116,42 +126,46 @@ class Player(Entity):
 
         # Chargement de la position dans la sauvegarde
         config = save.load_config("entities")["player"]
-        self.position = config["position"]
-        self.base_walk_speed = config["speed"] # Vitesse du joueur sans multiplicateur (en pixel/frame)
-        self.stamina = config["stamina"]       # énergie du joueur
-        self.cash = config["cash"]
+        self.position = config["position"]                      # Position du joueur
+        self.base_walk_speed = config["speed"]                  # Vitesse du joueur sans multiplicateur (en pixel/frame)
+        self.stamina = config["stamina"]                        # énergie du joueur
+        self.cash = config["cash"]                              # Argent du joueur
     
+
     def warp(self, map, coords, direction, old_bgm):
         """Téléportation du joueur vers une nouvelle map"""
         transition_step = 5
         # On empêche le joueur de bouger pendant le warp
         self.can_move = False
         # Transition vers un écran noir
-        fader = pg.Surface(self.game.window_size).convert()       # Fond noir initialement transparent
+        fader = pg.Surface(self.game.window_size).convert()         # Fond noir initialement transparent
         fader.set_alpha(0)
         while fader.get_alpha() < 255:
             self.game.screen.blit(fader, (0, 0))
-            fader.set_alpha(fader.get_alpha() + 2.2)              # L'opacité du fond noir est augmentée
+            fader.set_alpha(fader.get_alpha() + 2.2)                # L'opacité du fond noir est augmentée
             if self.game.debug:
-                debug.show_debug_menu(self.game)                  # Conservation du menu de debug à l'écran
+                debug.show_debug_menu(self.game)                    # Conservation du menu de debug à l'écran
             pg.display.flip()
             pg.time.delay(transition_step)
         # Téléportation
-        self.game.map_manager.load_map(map, old_bgm) # On charge la nouvelle carte
-        self.game.map_manager.teleport_player(coords)  # on téléporte le joueur à la destination
-        self.game.script_manager.setdirection("player", direction) # On fait tourner le joueur
-        self.update()
-        self.game.map_manager.draw()
-        self.game.map_manager.npc_manager.flip()
+        self.game.map_manager.load_map(map, old_bgm)                # On charge la nouvelle carte
+        self.game.map_manager.teleport_player(coords)               # on téléporte le joueur à la destination
+        self.game.script_manager.setdirection("player", direction)  # On fait tourner le joueur
+        self.update()                                               # Données de la nouvelle carte
+        self.game.map_manager.draw()                                # Màj du sprite sur la carte
+        self.game.map_manager.npc_manager.flip()                    # Maj des pnj sur la carte
         self.game.movement_mem = [elem for elem in self.game.movement_mem if elem[0] == "player"]
-        self.game.persistent_move = {}
+        self.game.persistent_move = {}                              # Réinitialisation des pnj à mouvement permanent
         self.game.persistent_move_index = {}
+        
+        # Continuation du script de mouvment s'il n'est pas arrêté
         if "player" in self.game.moving_people:
             self.game.moving_people = {"player" : self.game.moving_people["player"]}
         else:
             self.game.moving_people = {}
         pg.display.flip()
     
+
     def end_warp(self):
         """Fin de la transition de warp"""
         transition_step = 1
@@ -159,6 +173,8 @@ class Player(Entity):
         void.set_alpha(255)
         bg = self.game.screen.convert()                             # Arrière-plan final
         bg.set_alpha(255)
+
+        # Fade in
         while void.get_alpha() > 0:
             self.game.map_manager.draw()
             self.game.screen.blit(bg, (0, 0))
@@ -167,6 +183,7 @@ class Player(Entity):
             pg.display.flip()
             pg.time.delay(transition_step)
     
+
     def is_colliding(self):
         """Vérifie la collision avec un mur ou un portail"""
         # Collision avec un portail
@@ -178,6 +195,8 @@ class Player(Entity):
                 direction = self.game.game_data_db.execute("select spawn_direction from Portals where id = ?", (self.game.map_manager.doors_id[index],)).fetchall()[0][0]
             except:
                 direction = "up"    # Valeur par défaut
+
+            # Sauvegarde des params de l'ancienne carte
             old_bgm = self.game.map_manager.sound_manager.music_file
             self.warp(to_world, to_point, direction, old_bgm)
             self.is_warping = True
@@ -186,6 +205,7 @@ class Player(Entity):
             # Collision avec les murs
             return True if self.feet.collidelist(self.game.map_manager.walls) > -1 else False
     
+
     def move(self, list_directions, sprinting):
         """Méthode de déplacement du joueur"""
         if list_directions.count(True) > 0: # Si au moins une touche de déplacement est préssée
@@ -235,9 +255,11 @@ class Player(Entity):
             self.is_sprinting = False # Le joueur est immobile
 
 
+
 class Npc(Entity):
     """Classe des PNJs"""
     DEFAULT_SPRITESHEET = "m2"
+
 
     def __init__(self, map, id, name, coords, direction, script_id, sprite = None):
         self.base_walk_speed = 1.5          #! DEBUG
@@ -268,9 +290,11 @@ class Npc(Entity):
 
         self.position = list(coords)
     
+
     def is_colliding(self):
         """Vérifie la collision avec un mur ou un portail"""
         return True if self.feet.collidelist(self.game.map_manager.walls) > -1 else False
+
 
     def move(self, list_directions, sprinting):
         """Méthode de déplacement du joueur"""

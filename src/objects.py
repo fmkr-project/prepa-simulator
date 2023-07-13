@@ -6,6 +6,8 @@
 import pygame as pg
 import dialogue
 
+
+
 class ObjectManager():
     """Classe de gestion des différents objets du jeu"""
     def __init__(self, map):
@@ -25,6 +27,7 @@ class ObjectManager():
                 self.obj_group.add(new_object)
                 self.map.object_group.add(new_object)
 
+
     def pickup_check(self):
         """Vérification de l'existence d'un objet avant ramassage"""
         obj_collide_list = pg.sprite.spritecollide(self.map.game.player, self.obj_group, False)
@@ -41,12 +44,14 @@ class ObjectManager():
         
         print(self.map.game.menu_manager.sidemenu.bagmenu.groups)
 
+
     def refresh_objects(self):
         """Suppression du sprite des objets ramassés"""
         for obj in self.obj_group:
             if not obj.exists:
                 self.map.object_group.remove(obj)                     # Affichage du sprite de l'objet sur la carte
     
+
     def initialize_object_properties(self):
         """Initialisation des propriétés des objets du jeu"""
         object_ids = self.map.game.game_data_db.execute("select id from object_list;").fetchall()
@@ -57,11 +62,13 @@ class ObjectManager():
             self.list_of_objects.append(Object(object_ids[id][0], object_names[id][0], object_categories[id][0], object_descs[id][0])) # La liste est considérée dans l'ordre
 
 
+
 class MapObject(pg.sprite.Sprite):
     """Classe des objets sur la carte"""
     # TODO Nettoyer cette classe, elle est réservée à l'affichage sur la carte d'un élément de objects
     OBJ_TEX_FOLDER = "res/textures/objects/"
     OVERWORLD_TEX = "res/textures/objects/overworld.png"
+
 
     def __init__(self, map, id, coords, parent, hidden):
         super().__init__()
@@ -86,9 +93,11 @@ class MapObject(pg.sprite.Sprite):
             self.image.blit(self.overworld_sprite, (0, 0),
                             (0, 0, 16, 16))
     
+
     def save(self):
         """Sauvegarde de l'état de l'objet sur la carte pour empêcher sa réapparition"""
         self.map.game.save.execute('replace into mapobjects values (?, 1)', (self.id,))
+
 
 
 class Object():
@@ -96,6 +105,7 @@ class Object():
     OBJ_TEX_FOLDER = "res/textures/objects/"
     OVERWORLD_TEX = "res/textures/objects/overworld.png"
     PLACEHOLDER_TEX_PATH = "res/textures/objects/placeholder.png"
+    
     
     def __init__(self, id, name, category, desc):
         self.id = id

@@ -14,6 +14,7 @@ class Script():
         self.contents = contents
         self.labels = self.search_labels()      # Dictionnaire dont les clés sont les noms des labels et les valeurs sont leurs lignes d'apparition
     
+    
     def search_labels(self):
         """Construction du dictionnaire des labels"""
         res = {}

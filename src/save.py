@@ -82,11 +82,13 @@ def load_config(object):
         create_default_config(object)
         return load_config(object)
 
+
 def create_default_config(object):
     """Créé le fichier avec une configuration par défaut"""
     config = DEFAULT_CONFIG[object]
     with open(CONFIGURATION_FILES[object], 'w') as file:
         yaml.dump(config, file) #Ecriture du fichier de config
+
 
 def save_config(object, **args):
     """Sauvegarde en modifiant les données passées en paramètres"""
@@ -99,6 +101,7 @@ def save_config(object, **args):
         config[arg[0]] = arg[1]
     with open(CONFIGURATION_FILES[object], 'w') as file:
         yaml.dump(config, file) #Ecriture du fichier de config
+
 
 def init_save_database():
     """Création du fichier de sauvegarde"""

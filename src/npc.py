@@ -9,6 +9,7 @@ import entities
 """Gère les NPC du jeu"""
 
 
+
 class NpcManager():
     """Gère le chargement des NPC et le déclenchement des dialogues"""
     def __init__(self, map):
@@ -28,6 +29,7 @@ class NpcManager():
             self.npc_group.add(new_npc)
             self.map.object_group.add(new_npc)
     
+
     def flip(self):
         """Réinitialise l'orientation de tous les PNJs"""
         for npc in self.npc_group:
@@ -41,6 +43,7 @@ class NpcManager():
                 disp = "left"
             self.map.game.script_manager.setdirection(npc.id, disp)
     
+
     def force_flip(self, id, direction):
         """Force un PNJ à s'orienter selon une direction donnée"""
         if direction == 0:
@@ -53,12 +56,14 @@ class NpcManager():
             disp = "left"
         self.map.game.script_manager.setdirection(self.find_npc(id), disp)
     
+
     def find_npc(self, id):
         """Cherche un PNJ par son identifiant"""
         for npc in self.npc_group:
             if npc.id == id:
                 return(npc)
         return(None)
+
 
     def check_talk(self):
         """Démarre le dialogue avec un NPC proche"""
@@ -68,6 +73,7 @@ class NpcManager():
             if first_npc not in self.talking_npcs:
                 self.talking_npcs.append(first_npc)
                 self.map.game.script_manager.execute_script(first_npc.script, "back", first_npc)
+
 
 
 class OldNpc(pg.sprite.Sprite):

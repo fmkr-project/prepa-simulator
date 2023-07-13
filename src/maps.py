@@ -16,9 +16,12 @@ import sound as sd # Pour éviter la confusion avec le module Sound de pg
 Gère les différentes cartes du jeu et ses accès respectifs
 """
 
+
+
 class MapManager:
     """Gestionnaire des maps et de leurs éléments"""
     ZOOM = 2.2
+
 
     def __init__ (self,screen,game):
         self.game = game
@@ -26,6 +29,7 @@ class MapManager:
 
         config = save.load_config("entities")["player"]
         self.load_map(config["map_id"]) # Charge la carte où est le joueur
+
 
     def load_map(self, map_id, old_bgm = None):
         """Charge une carte"""
@@ -92,14 +96,17 @@ class MapManager:
         # Exécution du script en entrée de la map
         if self.map_script is not None:
             acc = copy.deepcopy(self.game.script_tree)
-            for sc in range(len(acc)):                     # Suppression des scripts permanents en cours d'exécution
+            # Suppression des scripts permanents en cours d'exécution
+            for sc in range(len(acc)):
                 if "persistent" in acc[sc][0].name:
                     acc[sc] = None
             self.game.script_tree = []
+            # Renouvellement des scripts permanents
             for script in acc:
                 self.game.script_tree.append(script) if script is not None else ()
             self.game.script_manager.execute_script(self.map_script, "front")
     
+
     def get_warps(self):
         """Vérifie si le joueur touche un objet Tiled associé à une porte"""
         index = self.game.player.feet.collidelist(self.game.map_manager.doors)
@@ -115,6 +122,7 @@ class MapManager:
             self.game.player.warp(to_world, to_point, direction, old_bgm)
             self.game.player.is_warping = True
 
+
     def teleport_player(self, tp_point):
         """Téléporte le joueur à un objet de Tiled ou à des coordonnées spécifiées"""
         if len(tp_point) != 2:       # tp_point n'est pas une liste, un tuple, ou un array numpy
@@ -123,10 +131,12 @@ class MapManager:
         else:                        # On repasse à la liste pour pouvoir changer les coordonnées du joueur
             self.game.player.position = list(tp_point)
 
+
     def player_layer(self, layer):
         """Change le calque d'affichage du joueur.\n
         Arguments possibles : "bg" pour l'arrière-plan, "fg" pour le premier plan"""
         self.object_group.change_layer(self.game.player, layer)
+
 
     def draw(self):
         """Met à jour l'affichage de la carte"""

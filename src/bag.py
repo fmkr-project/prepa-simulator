@@ -7,6 +7,8 @@ Gestion du Sac et de l'inventaire
 
 import numpy as np
 
+
+
 class Bag():
     """Classe du Sac du joueur"""
     def __init__(self, save):
@@ -20,11 +22,13 @@ class Bag():
         contents.reverse()                  # Conservation de l'ordre précédent
         self.contents = dict(contents) if contents != [] else {}
 
+
     def pickup_object(self, mapobject):
         """Incrémentation de la quantité d'un objet lorsqu'il est ramassé"""
         self.increment_item(mapobject.parent.id, 1) # Augmentation de la quantité de 1
         mapobject.exists = False
     
+
     def increment_item(self, object_id, qty):
         """Incrémentation de la quantité d'un objet désigné par son identifiant"""
         if not object_id in self.contents:
@@ -34,11 +38,13 @@ class Bag():
         if self.contents[object_id] <= 0:
             self.contents[object_id] = 0     # Plus d'objets de ce type
 
+
     def save(self):
         """Sauvegarde le contenu du sac dans la base de données"""
         for item, count in self.contents.items():
             self.save_db.cursor().execute("INSERT OR REPLACE INTO bag VALUES (?, ?)", (int(item), int(count)))
         self.save_db.commit()
+
 
     def separate(self, interval):
         """Séparation du contenu du Sac en groupes (listes)"""
@@ -47,6 +53,8 @@ class Bag():
         amounts = list(self.contents.values())
         corrected_obj = []
         corrected_amt = []
+
+        # Gestion des qtés à 0
         for obj in range(len(objects)):
             if amounts[obj] != 0:
                 corrected_obj.append(objects[obj])
@@ -54,6 +62,8 @@ class Bag():
         objects, amounts = corrected_obj, corrected_amt
         groups = []
         current_group = []
+
+        # Séparation des groupes
         while objects != []:
             current_group.append((objects[0], amounts[0]))
             if len(current_group) >= interval:

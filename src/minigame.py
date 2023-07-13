@@ -1,16 +1,19 @@
 import pygame as pg
 
-import locale
+import locales
 import numpy
+
+
 
 class MGManager():
     """Classe de gestion des mini-jeux"""
-    
     def __init__(self, game):
         self.game = game
         self.running_mg = None
     
+
     def update(self):
+        """Mise à jour des paramètres relatifs au MGM"""
         if self.running_mg is not None:
             self.game.player.can_move = False
             self.game.minigame_opened = True
@@ -20,11 +23,13 @@ class MGManager():
                 self.game.player.can_move = True
             self.game.minigame_opened = False
 
+
     def launch(self, mgm, *args):
         """Lancement d'un mini-jeu passé en argument"""
         if mgm == "select":
-            texts = locale.get_string("select", args[0])
+            texts = locales.get_string("select", args[0])
             self.running_mg = SelectGame(self.game, texts["qu"], [texts[p] for p in ['a', 'b', 'c', 'd', 'e']], texts["correct"])
+
 
     def key(self, key):
         """Gestion de l'appui d'une touche"""
@@ -42,24 +47,28 @@ class MGManager():
         except AttributeError:    
             pass        # Touche non supportée dans le mini-jeu courant ou pas de mini-jeu
 
+
+
 class Minigame():
     """Classe des mini-jeux"""
-    
     def __init__(self, game):
         self.game = game
     
+
     def launch(self):
         """Exécute un mini-jeu"""
         self.game.mgm_manager.running_mg = self
     
+
     def terminate(self):
         """Arrête l'exécution d'un mini-jeu"""
         self.game.mgm_manager.running_mg = None
 
 
+
 class SelectGame(Minigame):
     """Classe du mini-jeu de sélection"""
-    BANK = f"{locale.get_dir()}/select.yaml"            # Chemin vers la banque de questions
+    BANK = f"{locales.get_dir()}/select.yaml"            # Chemin vers la banque de questions
     TEXTURES_FOLDER = "res/textures/minigame/select/"   # Dossier des textures associées au mini-jeu
     OFFSET_FROM_BORDER = 30                             # La boîte associée à la question est décalée de tant par rapport au bord haut
     OFFSET_TO_BOTTOM = 30                               # La dernière boîte (Valider) est décalée de tant par rapport au bord bas
@@ -129,16 +138,19 @@ class SelectGame(Minigame):
         self.arrow_tex = pg.image.load(f"{self.TEXTURES_FOLDER}arrow.png").convert()
         self.arrow_tex.set_colorkey([255, 255, 255])
     
+
     def down(self):
         self.cursor_position += 1
         if self.cursor_position == len(self.props) + 1: # On prend en compte le bouton valider
             self.cursor_position = 0
     
+
     def up(self):
         self.cursor_position -= 1
         if self.cursor_position == -1:
             self.cursor_position = len(self.props)
     
+
     def enter(self):
         if self.cursor_position == 5:       # Dans tous les cas (moins de 5 propositions...) le bouton valider est en 6ème position
             answer = set([self.ALPHABET[self.order.index(i)] for i in range(len(self.choices)) if self.choices[i] == 1])    # Ensemble des réponses sous forme de lettres
@@ -150,6 +162,7 @@ class SelectGame(Minigame):
         else:
             self.choices[self.cursor_position] = 1 - self.choices[self.cursor_position]
     
+
     def format(self, text):
         """Découpage d'un texte en plusieurs lignes de taille adéquate"""
         # C'est la même fonction que pour les dialogues
@@ -168,6 +181,7 @@ class SelectGame(Minigame):
             del(splitted_text[0])
         formatted_text.append(text_line)
         return(formatted_text)
+
 
     def update_graphics(self):
         """Mise à jour de l'affichage des textures des boutons et de la boîte de dialogue"""

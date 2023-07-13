@@ -5,6 +5,7 @@ import pygame as pg
 import numpy as np
 
 
+
 # TODO Uniformisation des dialogues sous le module menu
 class Font():
     """Classe de la police d'écriture"""
@@ -27,6 +28,7 @@ class SideMenu():
     TEXTURE_LOCATION = "res/textures/menu/sidemenu.png"
     SIDEMENU_OFFSET = (20, 20) # Temporaire, à passer en relatif
     ARROW_TEX = "res/textures/menu/arrow.png"
+
 
     def __init__(self, game):
         self.submenu_list = []
@@ -61,10 +63,12 @@ class SideMenu():
         rect = self.texture.get_rect(topright=(self.game.screen.get_size()[0] - self.SIDEMENU_OFFSET[0], self.SIDEMENU_OFFSET[1]))
         self.game.screen.blit(self.texture, rect)
 
+
     def show_arrow(self):
         """Affichage de la flèche"""
         rect = self.arrow_tex.get_rect(topright = self.submenu_list[self.arrow_pos].icon_position)
         self.texture.blit(self.arrow_tex, rect)
+
 
     def menu_move_down(self):
         """Utilisation de la touche ↓"""
@@ -73,6 +77,7 @@ class SideMenu():
         elif self.arrow_pos < len(self.submenu_list) - 1:
             self.arrow_pos += 1
 
+
     def menu_move_up(self):
         """Utilisation de la touche ↑"""
         if self.arrow_pos == 0:
@@ -80,10 +85,12 @@ class SideMenu():
         elif self.arrow_pos >= 1:
             self.arrow_pos -= 1
 
+
     def clear(self):
         """Suppression du contenu du menu latéral"""
         self.texture = pg.transform.scale(self.texture_surf, (self.tex_x, self.tex_y))
         self.texture.set_colorkey([255, 255, 255])
+
 
     def currently_opened_submenu(self):
         """Identifiant du sous-menu actuellement ouvert, None si aucun menu n'est ouvert"""
@@ -92,12 +99,14 @@ class SideMenu():
                 return(submenu_id) # Il n'y a qu'un seul submenu d'ouvert
 
 
+
 class SubMenu():
     """Classe des menus secondaires"""
     SUBMENU_ICON_PATH = "res/textures/menu/submenu/"
     SUBMENU_BOX_PATH = "res/textures/menu/boxes/"
     ICON_TEXT_SPACING = (30, 6) # Temporaire
     DEFAULT_BOX_PATH = "res/textures/menu/boxes/default.png" # à enlever une fois que tous les menus seront implémentés
+
 
     def __init__(self, name, ingame_name, sidemenu, iconpos, boundary, can_loop, line_height, initial_coords):
         self.name = name
@@ -129,10 +138,12 @@ class SubMenu():
         self.box = pg.transform.scale(self.box_surf, (self.box_x, self.box_y))
         self.box.set_colorkey([255, 255, 255])
 
+
     def clear(self):
         """Suppression du contenu du sous_menu"""
         self.box = pg.transform.scale(self.box_surf, (self.box_x, self.box_y))
         self.box.set_colorkey([255, 255, 255])
+
 
     def show_on_sidebar(self):
         """Affichage de l'icône et du nom du sous-menu dans le menu latéral"""
@@ -140,10 +151,12 @@ class SubMenu():
         self.sidemenu.texture.blit(self.icon, self.icon_position) # Affichage de l'icône
         self.sidemenu.texture.blit(text_affiche, (self.icon_position[0] + self.ICON_TEXT_SPACING[0], self.icon_position[1] + self.ICON_TEXT_SPACING[1])) # Affichage du nom du sous-menu avec un offset
 
+
     def open(self):
         """Ouverture du sous-menu"""
         rect = self.box.get_rect(center = (self.sidemenu.game.screen.get_size()[0] / 2, self.sidemenu.game.screen.get_size()[1] / 2))
         self.sidemenu.game.screen.blit(self.box, rect)
+
 
     def draw(self):
         """Rafraîchissement de l'affichage"""
@@ -157,12 +170,14 @@ class SubMenu():
                 self.sidemenu.missionsmenu.print_menu_contents()
 
 
+
 class ChoiceBox():
     """Classe des boîtes à choix multiple"""
     UPPERLEFT_CORNER = [20, 20]     # Position de la flèche dans sa position initiale
     ARROW_MARGIN = 25               # Espace entre la flèche et le texte
     LINE_HEIGHT = 40                # TODO Unifier les hauteurs de ligne dans Game
     CB_TEXTURE = "res/textures/choicebox.png"       # à changer pour des choicebox avec plus de 2 options
+
 
     def __init__(self, game, choices):
         self.game = game
@@ -176,27 +191,32 @@ class ChoiceBox():
         self.box = pg.transform.scale(self.box_surf, (self.box_x, self.box_y))
         self.box.set_colorkey([255, 255, 255])
 
+
     def print_choice(self, choice_id):
         """Affichage d'un choix dans le menu"""
         ch_nametag = self.game.default_font.font.render(self.choices[choice_id], True, (0, 0, 0))
         nametag_rect = ch_nametag.get_rect(topleft = np.array(self.UPPERLEFT_CORNER) + np.array([self.ARROW_MARGIN, choice_id * self.LINE_HEIGHT]))
         self.box.blit(ch_nametag, nametag_rect)
     
+
     def choice_taken(self):
         """Mise à jour dans le Menu Manager de l'option choisie"""
         # TODO à voir si le deuxième élément du tuple est utile ou non...
         self.game.menu_manager.choicebox_result = (self.arrow.arrow_pos, self.choices[self.arrow.arrow_pos])
         self.game.menu_manager.close_choicebox()
     
+
     def clear(self):
         """Suppression du contenu de la boîte"""
         self.box = pg.transform.scale(self.box_surf, (self.box_x, self.box_y))
         self.box.set_colorkey([255, 255, 255])
 
+
     def open(self):
         """Ouverture de la boîte de choix"""
         rect = self.box.get_rect(center = (self.game.screen.get_size()[0] / 2, self.game.screen.get_size()[1] / 2))
         self.game.screen.blit(self.box, rect)
+
 
     def draw(self):
         """Rafraîchissement de l'affichage"""
@@ -205,9 +225,13 @@ class ChoiceBox():
         for choice in range(len(self.choices)):
             self.print_choice(choice)
 
+
+
 class MiniBox():
     """Classe des émoticônes"""
     VERTICAL_OFFSET = -50       # Temporaire
+
+
     def __init__(self, game, img, target):
         self.game = game
         self.tex = pg.image.load(f"res/textures/minibox/{img}.png").convert()
@@ -215,6 +239,7 @@ class MiniBox():
         if target == "player":
             self.rect = self.tex.get_rect(center = (self.game.screen.get_size()[0]/2, self.game.screen.get_size()[1]/2 + self.VERTICAL_OFFSET))
     
+
     def draw(self):
         """Rafraîchissement de l'affichage"""
         self.game.screen.blit(self.tex, self.rect)
@@ -225,6 +250,7 @@ class Arrow1D():
     # Utilisée dans les menus linéaires comme les boîtes Oui/Non, le Sac...
     # TODO ...et le menu latéral
     ARROW_TEX = "res/textures/menu/arrow.png"
+
 
     def __init__(self, parent, upper_limit, can_loop, line_height, origin_coords):
         self.parent = parent
@@ -241,12 +267,14 @@ class Arrow1D():
         self.arrow_tex = pg.transform.scale(self.arrow_tex_surf, (self.arrow_tex_x, self.arrow_tex_y))
         self.arrow_tex.set_colorkey([255, 255, 255])
 
+
     def move_down(self):
         """Déplacement de la flèche vers le bas"""
         if self.arrow_pos < self.upper_limit:
             self.arrow_pos += 1
         elif self.arrow_pos >= self.upper_limit and self.can_loop:
             self.arrow_pos = 0
+
 
     def move_up(self):
         """Déplacement de la flèche vers le haut"""
@@ -255,14 +283,18 @@ class Arrow1D():
         elif self.arrow_pos <= 0 and self.can_loop:
             self.arrow_pos = self.upper_limit
     
+
     def action(self):
         """Appui de la touche d'action"""
         pass
+
 
     def draw(self):
         """Affichage à l'écran de la flèche"""
         rect = self.arrow_tex.get_rect(topleft = (self.origin_coords[0], self.origin_coords[1] + self.arrow_pos*self.line_height))
         self.parent.box.blit(self.arrow_tex, rect)
+
+
 
 # TODO Classe Arrow2D
 
@@ -275,6 +307,7 @@ class MissionsSubMenu(SubMenu):
     ONSCREEN_MISSIONS = 11
     NAME_ICON_OFFSET = (40, 1)
     PROGRESS_SPRITE_PATH = "res/textures/mission_status"
+
 
     def __init__(self, sidemenu, boundary, can_loop, line_height, initial_coords):
         super().__init__("missions", "MISSIONS", sidemenu, self.MISSICON_POSITION, boundary, can_loop, line_height, initial_coords)
@@ -294,6 +327,7 @@ class MissionsSubMenu(SubMenu):
 
         self.onscreen_group = 0
     
+
     def show_mission_row(self, id, row):
         """Affiche une mission à la rangée choisie"""
         # Affichage du statut
@@ -312,11 +346,13 @@ class MissionsSubMenu(SubMenu):
             nametag_rect = nametag.get_rect(topleft = np.array(icon_coords) + np.array(self.NAME_ICON_OFFSET))
             self.box.blit(nametag, nametag_rect)
 
+
     def print_menu_contents(self):
         """Affichage du contenu du menu des missions"""
         # TODO Faire des onglets pour séparer les missions par type
         for row in range(len(self.groups[self.onscreen_group])):
             self.show_mission_row(self.groups[self.onscreen_group][row], row)
+
 
 
 class BagSubMenu(SubMenu):
@@ -335,11 +371,13 @@ class BagSubMenu(SubMenu):
     AMOUNT_ICON_OFFSET = (40, 8)        # Espace entre l'icône d'un objet et sa quantité. Temporaire
     KEYITEM_OFFSET = (40, 2)            # Espace entre l'icône d'un objet clé et son nom. temporaire
 
+
     def __init__(self, sidemenu, boundary, can_loop, line_height, initial_coords):
         super().__init__("bag", "SAC", sidemenu, self.BAGICON_POSITION, boundary, can_loop, line_height, initial_coords)
         self.groups = self.sidemenu.game.bag.separate(self.ONSCREEN_OBJECTS) # Groupes ("pages") d'objets de taille ONSCREEN_OBJECTS
         self.onscreen_group = 0 # ID du groupe à l'écran
         print(self.groups)
+
 
     def show_object_row(self, object_couple, row):
         """Affiche un objet à la rangée choisie avec sa quantité"""
@@ -426,11 +464,13 @@ class BagSubMenu(SubMenu):
             self.show_object_row(self.groups[self.onscreen_group][row], row)
         self.lateral()
 
+
     def previous_group(self):
         """Décrémente le groupe actuellement affiché à l'écran"""
         if self.onscreen_group > 0:
             self.onscreen_group -= 1
             self.arrow.arrow_pos = 0
+
 
     def next_group(self):
         """Incrémente le groupe actuellement affiché à l'écran"""
@@ -438,17 +478,23 @@ class BagSubMenu(SubMenu):
             self.onscreen_group += 1
             self.arrow.arrow_pos = 0
 
+
     def refresh_groups(self):
         """Rafraîchissement des objets à afficher à l'écran"""
         self.groups = self.sidemenu.game.bag.separate(self.ONSCREEN_OBJECTS)
         self.arrow.upper_limit = len(self.groups[self.onscreen_group]) - 1
 
+
+
 class SaveSubMenu(SubMenu):
     """Classe du sous-menu de sauvegarde"""
     SAVEICON_POSITION = (30, 130) # Temporaire
+
+
     def __init__(self, sidemenu, boundary, can_loop, line_height, initial_coords):
         super().__init__("save", "SAUVER", sidemenu, self.SAVEICON_POSITION, boundary, can_loop, line_height, initial_coords)
     
+
     def toggled(self):
         """Exécution de l'action de sauvegarde et fermeture du menu latéral"""
         self.sidemenu.game.menu_manager.close_menu()        # Fermeture du sous-menu de sauvegarde
@@ -457,11 +503,16 @@ class SaveSubMenu(SubMenu):
         sm.execute_script(sm.find_script_from_name("save"), "back")
 
 
+
 class OptionsSubMenu(SubMenu):
     """Classe du sous-menu des options"""
     OPTIONSICON_POSITION = (30, 180) # Temporaire
+
+
     def __init__(self, sidemenu, boundary, can_loop, line_height, initial_coords):
         super().__init__("options", "OPTIONS", sidemenu, self.OPTIONSICON_POSITION, boundary, can_loop, line_height, initial_coords)
+
+
 
 class MenuManager():
     MISSIONS_SUBMENU_HEIGHT = 11             # Nombre de missions par menu
@@ -472,6 +523,7 @@ class MenuManager():
     BAG_ORIGIN_COORDS = (60, 20)            # Coordonnées initiales de la flèche (Sac)
     SAVE_ORIGIN_COORDS = (-1, -1)           # WIP
     OPTIONS_ORIGIN_COORDS = (-1, -1)        # WIP
+
 
     def __init__(self, screen, game):
         self.screen = screen
@@ -488,6 +540,7 @@ class MenuManager():
         self.choicebox_result = None    # Place et nom de l'option choisie dans la choicebox
         # Boîtes de décoration
         self.minibox = None
+
 
     def toggle_sidemenu(self):
         """Commute l'affichage du menu latéral"""
@@ -508,6 +561,7 @@ class MenuManager():
             else:
                 pg.mixer.Sound.play(self.sidemenu.close_sfx) # lorsqu'on ferme le menu
 
+
     def draw(self):
         """Affiche le menu latéral s'il est ouvert"""
         if self.sidemenu.onscreen:
@@ -519,6 +573,7 @@ class MenuManager():
             self.choicebox.draw()
         if self.minibox is not None:
             self.minibox.draw()
+
 
     def menu_move(self, direction):
         """Déplacement dans un menu"""
@@ -560,6 +615,7 @@ class MenuManager():
                 elif direction == "down":
                     mismenu.arrow.move_down()
 
+
     def open_menu(self):
         """Ouverture d'un sous-menu"""
         if self.sidemenu.currently_opened_submenu() is None:
@@ -568,6 +624,7 @@ class MenuManager():
             if self.sidemenu.currently_opened_submenu() == self.sidemenu.submenu_list.index(self.sidemenu.savemenu):
                 self.sidemenu.savemenu.toggled()
 
+
     def close_menu(self):
         """Fermeture d'un sous-menu"""
         # La fonction ne ferme pas le menu latéral, seulement le sous-menu
@@ -575,11 +632,13 @@ class MenuManager():
             self.sidemenu.submenu_list[self.sidemenu.currently_opened_submenu()].is_open = False
             pg.mixer.Sound.play(self.sidemenu.close_sfx)
     
+
     def open_choicebox(self, choices):
         """Ouverture d'une boîte à choix multiples"""
         if self.choicebox is None:
             self.game.player.can_move = False
             self.choicebox = ChoiceBox(self.game, choices)
+    
     
     def close_choicebox(self):
         """Fermeture d'une boîte à choix multiples"""

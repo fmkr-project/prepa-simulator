@@ -2,11 +2,14 @@ import pygame as pg
 import save
 import debug
 
+
+
 def init():
     global controls
     controls = save.load_config("controls")
     for cur_key in controls.keys():
         controls[cur_key] = pg.key.key_code(controls[cur_key])
+
 
 def handle_pressed_key(game):
     """Transmet toutes les touches préssées"""
@@ -14,6 +17,7 @@ def handle_pressed_key(game):
     # On envoie le statut des 4 touches de déplacement pour être traité, si le clavier n'est pas bloqué
     if not game.input_lock and game.dialogue is None:
         game.player.move([pressed[controls["PLAYER_MOVE_UP"]], pressed[controls["PLAYER_MOVE_RIGHT"]], pressed[controls["PLAYER_MOVE_DOWN"]], pressed[controls["PLAYER_MOVE_LEFT"]]], pressed[controls["PLAYER_SPRINT"]] or pressed[controls["PLAYER_SPRINT_SEC"]])
+
 
 def handle_key_down_event(game, event):
     """Transmet l'évènement d'une toucher qui vient d'être pressée"""

@@ -7,6 +7,8 @@ import shutil
 FONT = "consolas"
 FONT_SIZE = 18
 
+
+
 def show_debug_menu(game):
     text = f"Debug menu (F3) \n\
     ==== GAME ==== \n\
@@ -37,10 +39,12 @@ Permanently Moving People : {[key for key in game.persistent_move]}"
     for (number, cur_text) in enumerate(splited_text):
         game.screen.blit(pg.font.SysFont(FONT, FONT_SIZE).render(cur_text, True, (255, 255, 0)), (0, number*(FONT_SIZE + 5)))
 
+
 def reset_config(game):
     shutil.rmtree("stg")
     game.is_running = False
     game.restart = True
+
 
 def reset_save(game):
     game.save.close()

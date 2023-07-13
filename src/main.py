@@ -10,6 +10,8 @@ import os
 # Import interne
 import game as g
 
+
+
 if __name__ == '__main__' :
     # Modification du répertoire de base pour tout le jeu hors des fichiers sources
     os.chdir("..")

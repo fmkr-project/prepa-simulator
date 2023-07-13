@@ -13,9 +13,12 @@ import scripts
 import dialogue as dia
 import menu
 
+
+
 class ScriptManager():
     """Classe de gestion des scripts du jeu"""
     SCRIPTS_FOLDER = "res/scripts/"
+
 
     def __init__(self, game):
         self.game = game
@@ -49,6 +52,7 @@ class ScriptManager():
         # Chargement de la liste des scripts
         self.parse_scripts()
     
+
     def parse_scripts(self):
         for filename in os.listdir(self.SCRIPTS_FOLDER):
             filepath = os.path.join(self.SCRIPTS_FOLDER, filename)
@@ -77,15 +81,18 @@ class ScriptManager():
                             self.permanent_scripts.append(scripts.Script(id, name, script))
                         script = []
 
+
     def get_script_from_id(self, ident):
         """Retourne un script étant donné un identifiant"""
         pos = [script.id for script in self.list_of_scripts].index(ident)
         return(self.list_of_scripts[pos])
     
+
     def find_script_from_name(self, name):
         """Retourne l'ID d'un script étant donné son nom"""
         pos = [script.name for script in self.list_of_scripts].index(name)
         return(self.list_of_scripts[pos])
+
 
     def execute_script(self, script, side, npc = None):
         """Exécution d'un script"""
@@ -103,28 +110,33 @@ class ScriptManager():
         if side == "front":
             self.game.script_tree.append([script, 0])       # Priorité à ce script (appel d'un script permanent...)
     
+
     # Fonctions de lecture et d'écriture de la sauvegarde
-        
+
     def read_flags(self, map_id):
         """Obtient l'état des flags de la map d'ID donnée. -1 pour la map actuelle"""
         corrected_map_id = self.game.map_manager.map_id if map_id == -1 else map_id
         return(eval(self.game.save.execute("select flags from maps where map_id = ?;", (corrected_map_id,)).fetchall()[0][0]))
     
+
     def write_flags(self, map_id, flag_id, value):
         """Modifie la valeur d'un flag d'une map donnée"""
         mapscript_trig = self.game.save.execute("select mapscript_triggered from maps where map_id = ?;", (map_id,)).fetchall()[0][0] # Valeur inchangée
         new_flags = [self.read_flags(map_id)[flag] if flag != flag_id else value for flag in range(len(self.read_flags(map_id)))]
         self.game.save.execute("replace into maps values (?,?,?);", (map_id, mapscript_trig, f"{new_flags}"))
     
+
     def read_npcflags(self, npc_id):
         """Obtient l'état des flags du PNJ d'ID donné"""
         return(eval(self.game.save.execute("select flags from npc where npc_id = ?;", (npc_id,)).fetchall()[0][0]))
     
+
     def write_npcflags(self, npc_id, flag_id, value):
         """Modifie la valeur d'un flag d'un NPC donné"""
         new_flags = [self.read_npcflags(npc_id)[flag] if flag != flag_id else value for flag in range(len(self.read_npcflags(npc_id)))]
         self.game.save.execute("replace into npc values (?,?);", (npc_id, f"{new_flags}"))
     
+
     def read_event(self, event_tag):
         """Retourne l'état de l'event spécifié (chiffre binaire), None s'il n'existe pas"""
         try:
@@ -132,6 +144,7 @@ class ScriptManager():
             return(st)
         except:
             return(None)
+
 
     def change_event(self, event_tag, state):
         """Commute l'état du drapeau d'un event étant donné son nom.\n
@@ -142,20 +155,25 @@ class ScriptManager():
         except:
             self.game.save.execute("update events set state = ? where tag = ?;", (state, event_tag))
     
+
     def exit_movingscript(self):
         """Terminaison d'un script de déplacement"""
         self.game.executing_moving_script = False
         self.game.input_lock = False
     
+
     def current_script_command(self):
         """N° de la commande en cours d'exécution dans le script courant"""
         return(self.game.script_tree[-1][1])
     
+
     def ask_unlock(self):
         self.unlocking = True
     
+
     def wait(self):
         self.wait_movements = True
+
 
     def update(self):
         if self.game.running_script is None and self.game.script_tree != []:
@@ -270,32 +288,39 @@ class ScriptManager():
             self.game.moving_people = copy.deepcopy(moving)
             
 
-    ###################################
-    # Définition du langage des scripts
 
+    #####################################
+    # Définition du langage des scripts #
+    #####################################
     # Fonctions générales
+
     def nop(self, ticks):
         """Fonction qui ne fait rien pendant un nombre donné de ticks"""
         self.noping_time = ticks
         self.is_counting_ticks = True
 
+
     def runscript(self, script, side = "front"):
         """Exécution d'un autre script"""
         self.execute_script(self.find_script_from_name(script), side)
     
+
     def interrupt(self):
         """Interruption de l'exécution de tous les scripts en mémoire"""
         self.abort = True
     
+
     def label(self, name):
         """Commande indiquant un label accessible via la fonction goto. Ne fait rien en elle-même"""
         pass
+
 
     def goto(self, label_tag):
         """Saut vers un label"""
         if label_tag in self.game.running_script.labels:
             self.game.script_tree[-1][1] = self.game.running_script.labels[label_tag]
     
+
     def save(self):
         """Sauvegarde de la partie"""
         try:
@@ -307,21 +332,26 @@ class ScriptManager():
         except sql.ProgrammingError:
             print("Impossible d'accéder à la base de donnée lors de la sauvegarde. Cela peut être dû à une réinitialisation des données...")
 
+
     def inputlock(self):
         """Verrouillage des commandes"""
         self.game.input_lock = True
+
     
     def freeinputs(self):
         """Déverrouillage des commandes"""
         self.ask_unlock()
+
     
     def blockpersistents(self):
         """Empêche l'exécution des scripts persistents"""
         self.perblock = True
+
     
     def unblockpersistents(self):
         """Permet à nouveau l'exécution des scripts persistents"""
         self.perblock = False
+
     
     def print(self, text):
         """Fonction print de Python"""
@@ -329,6 +359,7 @@ class ScriptManager():
 
 
     # Fonctions graphiques et de mouvement
+
     def changelayer(self, layer):
         """Déplacement du sprite du joueur sur un nouveau calque"""
         if layer == "bg":
@@ -336,6 +367,7 @@ class ScriptManager():
         if layer == "fg":
             self.game.map_manager.player_layer(1)
     
+
     def emotion(self, boxname, entity):
         """Déclenchement de l'apparition d'une émoticône au-dessus du sprite d'une entité"""
         #TODO Voir comment faire apparaître une minibox au dessus du sprite d'un pnj. Coordonnées touça touça
@@ -344,9 +376,11 @@ class ScriptManager():
             center = (self.game.screen.get_size()[0]/2, self.game.screen.get_size()[1]/2 + verticaloffset)
         self.game.menu_manager.minibox = menu.MiniBox(self.game, boxname, "player")
     
+
     def clearboxes(self):
         self.game.menu_manager.minibox = None
     
+
     def setdirection(self, id, direction):
         """Change la direction dans laquelle pointe un PNJ"""
         if id == "player":
@@ -370,13 +404,16 @@ class ScriptManager():
                 if direction == "right":
                     npc.fix_direction([1, 0])
 
+
     def startmoving(self):
         """Démarrage des mouvements mis en mémoire"""
         self.game.executing_moving_script = True
     
+
     def waitforstop(self):
         """Attente de la terminaison de tous les mouvements avant de continuer l'exécution du script"""
         self.wait()
+
 
     def move(self, id, direction, pix, sprint = False):
         """Mise en mémoire du déplacement d'une entité"""
@@ -404,6 +441,7 @@ class ScriptManager():
                                                         "movement_boundary" : pix,
                                                         "sprint_during_script" : sprint}])
     
+
     def compx(self, op, coord):
         """Comparaison de la coordonnée x du joueur"""
         if op == "sup":
@@ -411,6 +449,7 @@ class ScriptManager():
         if op == "inf":
             self.boolacc = True if self.game.player.position[0] < coord else False
     
+
     def compy(self, op, coord):
         """Comparaison de la coordonnée y du joueur"""
         if op == "sup":
@@ -418,9 +457,11 @@ class ScriptManager():
         if op == "inf":
             self.boolacc = True if self.game.player.position[1] < coord else False
     
+
     def watchroom(self, id):
         """Comparaison de l'ID de la salle actuelle"""
         self.boolacc = True if self.game.map_manager.map_id == id else False
+
 
     def persistent(self, id, direction, pix, sprint = False):
         """Mise en mémoire du mouvement permanent d'un PNJ"""
@@ -434,6 +475,7 @@ class ScriptManager():
                                          "sprint_during_script" : sprint}
         self.game.persistent_move_index[id] = 0         # Initialisation du mouvement permanent
     
+
     def stopnpc(self, id):
         """Suppression du mouvement permanent d'un PNJ"""
         assert type(id) is int, "Erreur : seul le mouvement d'un PNJ peut être arrêté."
@@ -441,11 +483,13 @@ class ScriptManager():
         if id in self.game.persistent_move:
             del(self.game.persistent_move[id])
 
+
     def offrails(self, id):
         """Suppression du mouvement permanent d'un PNJ"""
         if id in self.game.persistent_move:
             del(self.game.persistent_move[id])
     
+
     def warp(self, target_map, target_coords, direction = "up"):
         """Téléportation du joueur vers une nouvelle map"""
         self.game.player.warp(target_map, target_coords, direction, self.game.map_manager.sound_manager.music_file)
@@ -453,10 +497,12 @@ class ScriptManager():
     
 
     # Fonctions du temps
+
     def getday(self):
         """Obtention du numéro du jour courant"""
         self.acc = self.game.internal_clock.weekday
     
+
     def advance(self, minutes):
         """Passage d'un nombre donné de minutes"""
         self.game.internal_clock.minute += minutes
@@ -466,6 +512,7 @@ class ScriptManager():
         self.game.internal_clock.hour = self.game.internal_clock.hour % 24
         self.game.internal_clock.minute = self.game.internal_clock.minute % 60
 
+
     def passtime(self):
         """Passage au jour suivant"""
         if self.game.internal_clock.hour >= 7:
@@ -474,6 +521,7 @@ class ScriptManager():
         self.game.internal_clock.minute = 0
         self.game.internal_clock.find_dayname()
     
+
     def comphour(self, op, hour):
         """Opération de comparaison avec l'heure courante"""
         if op == 'sup':
@@ -483,6 +531,7 @@ class ScriptManager():
         if op == 'eq':
             self.boolacc = True if self.game.internal_clock.hour == hour else False
     
+
     def compmin(self, op, min):
         """Opération de comparaison avec les minutes courantes"""
         if op == 'sup':
@@ -494,23 +543,28 @@ class ScriptManager():
 
 
     # Fonctions des menus (boîtes contenant du texte)
+
     def loadtext(self, text):
         """Chargement du texte d'une infobox dans la mémoire"""
         self.infobox_contents.append(text)
+
 
     def infobox(self):
         """Ouverture d'une infobulle"""
         self.game.dialogue = dia.Dialogue(self.game, None, True, -1, self.infobox_contents)
         self.infobox_contents = []
 
+
     def dialogue(self, talking, dialogue_id):
         """Ouverture d'une boîte de dialogue"""
         self.game.dialogue = dia.Dialogue(self.game, talking, False, dialogue_id)
     
+
     def opencb(self, choices = ["OUI", "NON"]):         # Temporaire : uniquement des boîtes Oui / Non
         """Ouverture d'une boîte à choix multiples"""
         self.game.menu_manager.open_choicebox(choices)
     
+
     def cb_result(self):
         """Obtention de l'option choisie à la choicebox précédente.\n
         Le résultat est stocké dans l'accumulateur numérique"""
@@ -518,6 +572,7 @@ class ScriptManager():
 
 
     # Fonctions avec l'accumulateur booléen
+
     def compare_obj_qty(self, obj_id, operator, qty):
         """Opération logique sur la quantité d'un objet. Le résultat est stocké dans l'accumulateur sous forme de booléen"""
         if obj_id not in self.game.bag.contents:
@@ -531,20 +586,24 @@ class ScriptManager():
             elif operator == "eq":
                 self.boolacc = True if comp == qty else False
     
+
     def true(self):
         """Changement de la valeur de l'accumulateur booléen en True"""
         self.boolacc = True
     
+
     def false(self):
         """Changement de la valeur de l'accumulateur booléen en False"""
         self.boolacc = False
     
+
     def iftrue(self, command):
         """Exécution d'une commande si l'accumulateur booléen est True"""
         if self.boolacc:
             corrected_comm = "self." + command
             eval(corrected_comm)
     
+
     def iffalse(self, command):
         """Exécution d'une commande si l'accumulateur booléen est False"""
         if not self.boolacc:
@@ -553,14 +612,17 @@ class ScriptManager():
 
 
     # Fonctions avec l'accumulateur numérique
+
     def ran(self, inf, sup):
         """Place un entier aléatoire dans l'accumulateur"""
         self.acc = randint(inf, sup)
     
+
     def put(self, value):
         """Place un entier défini dans l'accumulateur"""
         self.acc = value
     
+
     def compare(self, operator, qty):
         """Opération logique sur la valeur de acc. Le résultat est stocké dans l'accumulateur booléen"""
         if operator == "sup":
@@ -570,6 +632,7 @@ class ScriptManager():
         elif operator == "eq":
             self.boolacc = (self.acc == qty)
     
+
     def math(self, operator, operand):
         """Opération arithmétique sur la valeur de acc"""
         if operator == "/" and operand == 0:
@@ -585,22 +648,26 @@ class ScriptManager():
 
 
     # Fonctions sonores
+
     def chg_music(self, track):
         """Changement de la musique courante"""
         self.game.map_manager.sound_manager.play_music(track, track)
     
+
     def sfx(self, fx):
         """Joue un effet sonore"""
         self.game.map_manager.sound_manager.play_sfx(fx)
 
 
     # Fonctions des objets
+
     def get_object(self, object_id, qty):
         """Obtention d'un objet en une quantité donnée"""
         self.game.bag.increment_item(object_id, qty)
         self.game.menu_manager.sidemenu.bagmenu.refresh_groups()                    # Actualisation de l'affichage
         print(self.game.menu_manager.sidemenu.bagmenu.groups)
     
+
     def toss_object(self, object_id, qty):
         """Destruction d'un objet en une quantité donnée, les supprime tous s'il n'y en a pas assez"""
         try:
@@ -614,6 +681,7 @@ class ScriptManager():
 
 
     # Fonctions des caractéristiques du joueur
+
     def energy(self, op, qty):
         """Comparaison de l'énergie actuelle du joueur"""
         if op == 'sup':
@@ -623,22 +691,27 @@ class ScriptManager():
         if op == 'eq':
             self.boolacc = True if self.game.player.stamina == qty else False
     
+
     def energize(self, qty):
         """Changement de l'énergie du joueur"""
         self.game.player.stamina += qty
+
     
     def set_energy(self, qty):
         """Changement de l'énergie du joueur (valeur fixe)"""
         self.game.player.stamina = qty
+
     
     def pospoint(self):
         """Sauvegarde de la position actuelle du joueur"""
         self.saved_position = copy.deepcopy(self.game.player.position)
         self.saved_map = self.game.map_manager.map_id
+
     
     def recallpos(self):
         """Warp aux coordonnées enregistrées"""
         self.warp(self.saved_map, self.saved_position, "up")
+
     
     def compcash(self, op, qty):
         """Comparaison de la qté d'argent du joueur"""
@@ -648,6 +721,7 @@ class ScriptManager():
             self.boolacc = True if self.game.player.cash < qty else False
         if op == 'eq':
             self.boolacc = True if self.game.player.cash == qty else False
+
     
     def givecash(self, qty):
         """Changement de la qté d'argent du joueur"""
@@ -655,6 +729,7 @@ class ScriptManager():
 
 
     # Fonctions des drapeaux des salles
+
     def testflag(self, map_id, flag_id):
         """Obtention de l'état d'un drapeau\n
         Passer -1 en tant que valeur de map_id retourne l'état du flag de la map actuelle"""
@@ -663,6 +738,7 @@ class ScriptManager():
         else:
             self.boolacc = True if self.read_flags(map_id)[flag_id] == 1 else False
     
+
     def raiseflag(self, map_id, flag_id):
         """Lève le drapeau d'une salle\n
         Passer -1 en tant que valeur de map_id lève le drapeau de la map actuelle\n
@@ -672,6 +748,7 @@ class ScriptManager():
         else:
             self.write_flags(map_id, flag_id, 1)
     
+
     def lowerflag(self, map_id, flag_id):
         """Baisse le drapeau d'une salle\n
         Passer -1 en tant que valeur de map_id baisse le drapeau de la map actuelle\n
@@ -683,15 +760,18 @@ class ScriptManager():
 
 
     # Fonctions des drapeaux généraux "events"
+
     def checkevent(self, event_tag):
         """Met dans l'accumulateur booléen l'état de l'event spécifié, ou False s'il est inexistant"""
         res = self.read_event(event_tag)
         self.boolacc = res if res is not None else False
 
+
     def raiseevent(self, event_tag):
         """Lève le drapeau lié à l'event\n
         Si l'event n'existe pas, un nouveau est créé"""
         self.change_event(event_tag, 1)
+
     
     def lowerevent(self, event_tag):
         """Baisse le drapeau lié à l'event"""
@@ -699,9 +779,11 @@ class ScriptManager():
 
 
     # Fonctions des PNJ
+
     def checknpcflag(self, npc, flag_id):
         """Vérification d'un flag d'un NPC"""
         self.boolacc = True if self.read_npcflags(npc.id)[flag_id] == 1 else False
+
     
     def setnpcflag(self, npc, flag_id, state):
         """Mise à jour du flag d'un NPC"""
@@ -713,8 +795,10 @@ class ScriptManager():
     def launchmgm(self, mgm, *args):
         """Lancement d'un mini-jeu"""
         self.game.mgm_manager.launch(mgm, *args)
+
     
     # Fonctions des missions
+
     def mistate(self, id, state):
         """Change la progression générale d'une mission"""
         if id not in [mission.id for mission in list(self.game.mission_manager.dict_of_missions.values())]:
@@ -729,6 +813,7 @@ class ScriptManager():
                 self.raiseevent(f"unclaimedMission{id}")
             if state == 4:
                 self.raiseevent(f"clearedMission{id}")        # Levage du drapeau correspondant
+
     
     def miadv(self, id, adv):
         """Change l'étape en cours d'une mission"""
@@ -740,6 +825,7 @@ class ScriptManager():
                 print("L'avancement demandé est invalide.")
             else:
                 mission.current_adv = adv
+                
     
     def checkadv(self, id, op, adv):
         """Vérifie si un avancement est atteint pour une mission donnée"""

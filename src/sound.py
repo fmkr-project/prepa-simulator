@@ -3,10 +3,13 @@
 
 import pygame as pg
 
+
+
 class SoundManager():
     """Gestionnaire des sons"""
     VOLUME = 0.2 #Volume général du son
     SOUNDS_FOLDER = "res/sounds/"
+
 
     def __init__(self, map, old_bgm):
         self.old_bgm = old_bgm
@@ -16,6 +19,7 @@ class SoundManager():
         self.current_music = self.music_file
 
         self.play_music(self.music_file, self.old_bgm)
+
 
     def play_music(self, music_file, old_bgm):
         """Joue une nouvelle musique"""
@@ -28,8 +32,10 @@ class SoundManager():
             pg.mixer.music.set_volume(self.VOLUME)
             pg.mixer.music.play(-1) # Boucle la musique
     
+
     def play_sfx(self, sfx_file, channel = 1):
         """Joue un effet sonore"""
+        # TODO faire plusieurs channels
         sfx = pg.mixer.Sound(f"{self.SOUNDS_FOLDER}fx/{sfx_file}.mp3")
         self.channel1.set_volume(self.VOLUME)
         self.channel1.play(sfx)

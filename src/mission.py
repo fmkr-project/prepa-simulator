@@ -1,4 +1,6 @@
-import locale
+import locales
+
+
 
 class Mission():
     """Classe des missions"""
@@ -6,7 +8,9 @@ class Mission():
         self.id = id
         self.max_adv = adv
         self.shown_message = None
-        self.name = locale.get_substring("mission_titles", id)
+        self.name = locales.get_substring("mission_titles", id)
+
+
 
 class MissionManager():
     """Classe de gestion des missions et du sous-menu associé"""
@@ -32,6 +36,7 @@ class MissionManager():
 
             self.dict_of_missions[new_mission.id] = new_mission
     
+
     def save(self):
         """Sauvegarde de l'état des missions"""
         for mission in list(self.dict_of_missions.values()):

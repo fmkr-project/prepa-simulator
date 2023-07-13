@@ -21,10 +21,13 @@ import scriptmanager as sm
 import minigame as mgm
 import mission as mi
 
+
+
 class Game:
     DATABASE_LOCATION = "res/game_data.db"
     GAME_NAME = "Prepa Simulator"
     TICK_PER_SECOND = 60
+
 
     def __init__(self):
         self.is_running = False # Statut général
@@ -103,6 +106,7 @@ class Game:
         else:
             self.resizable = True
 
+
     def quit_game(self):
         """Ferme le jeu"""
         try:
@@ -115,10 +119,13 @@ class Game:
         pg.display.quit()
         pg.quit()
 
+
     def tick(self):
         """Fonction principale de calcul du tick"""
         inputs.handle_pressed_key(self) # Gestion de toutes les touches préssées
         self.internal_clock.update()
+
+        # Mise à jour de tous les managers
         self.map_manager.draw()
         self.menu_manager.draw()
         self.player.update()
@@ -126,10 +133,13 @@ class Game:
             npc.update()
         self.script_manager.update() # Actualisation du mouvement d'un script : toutes commandes bloquées
         self.mgm_manager.update()
+
+        # Mise à jour du dialogue
         if self.dialogue != None:
             self.dialogue.update() # Met à jour le dialogue
         if self.debug:
             debug.show_debug_menu(self)
+
 
     def run(self):
         """Boucle principale"""
