@@ -147,7 +147,7 @@ class SubMenu():
 
     def show_on_sidebar(self):
         """Affichage de l'icône et du nom du sous-menu dans le menu latéral"""
-        text_affiche = self.sidemenu.game.default_font.font.render(self.ingame_name, True, (0, 0, 0)) # à changer en variable globale
+        text_affiche = self.sidemenu.game.default_font.font.render(self.ingame_name, False, (0, 0, 0)) # à changer en variable globale
         self.sidemenu.texture.blit(self.icon, self.icon_position) # Affichage de l'icône
         self.sidemenu.texture.blit(text_affiche, (self.icon_position[0] + self.ICON_TEXT_SPACING[0], self.icon_position[1] + self.ICON_TEXT_SPACING[1])) # Affichage du nom du sous-menu avec un offset
 
@@ -194,7 +194,7 @@ class ChoiceBox():
 
     def print_choice(self, choice_id):
         """Affichage d'un choix dans le menu"""
-        ch_nametag = self.game.default_font.font.render(self.choices[choice_id], True, (0, 0, 0))
+        ch_nametag = self.game.default_font.font.render(self.choices[choice_id], False, (0, 0, 0))
         nametag_rect = ch_nametag.get_rect(topleft = np.array(self.UPPERLEFT_CORNER) + np.array([self.ARROW_MARGIN, choice_id * self.LINE_HEIGHT]))
         self.box.blit(ch_nametag, nametag_rect)
     
@@ -338,11 +338,11 @@ class MissionsSubMenu(SubMenu):
         self.box.blit(icon, rect)
         # Affichage du nom
         if self.sidemenu.game.mission_manager.dict_of_missions[id].current_status != "blank":
-            nametag = self.sidemenu.game.default_font.font.render(f"N°{str(id).zfill(3)} {self.sidemenu.game.mission_manager.dict_of_missions[id].name}", True, (0, 0, 0))
+            nametag = self.sidemenu.game.default_font.font.render(f"N°{str(id).zfill(3)} {self.sidemenu.game.mission_manager.dict_of_missions[id].name}", False, (0, 0, 0))
             nametag_rect = nametag.get_rect(topleft = np.array(icon_coords) + np.array(self.NAME_ICON_OFFSET))
             self.box.blit(nametag, nametag_rect)
         else:     # Affichage d'une suite de points d'interrogation
-            nametag = self.sidemenu.game.default_font.font.render(f"N°{str(id).zfill(3)} ????????????????????????????????", True, (0, 0, 0))
+            nametag = self.sidemenu.game.default_font.font.render(f"N°{str(id).zfill(3)} ????????????????????????????????", False, (0, 0, 0))
             nametag_rect = nametag.get_rect(topleft = np.array(icon_coords) + np.array(self.NAME_ICON_OFFSET))
             self.box.blit(nametag, nametag_rect)
 
@@ -389,7 +389,7 @@ class BagSubMenu(SubMenu):
         self.box.blit(icon, rect)
 
         # Affichage du nom
-        obj_nametag = self.sidemenu.game.default_font.font.render(self.sidemenu.game.map_manager.object_manager.list_of_objects[object_couple[0]].name, True, (0, 0, 0))
+        obj_nametag = self.sidemenu.game.default_font.font.render(self.sidemenu.game.map_manager.object_manager.list_of_objects[object_couple[0]].name, False, (0, 0, 0))
         if parentobj.category == "key_item":
             nametag_rect = obj_nametag.get_rect(topleft = np.array(icon_coords) + np.array(self.KEYITEM_OFFSET))
         else:
@@ -398,7 +398,7 @@ class BagSubMenu(SubMenu):
 
         # Affichage de la quantité si l'objet n'est pas un objet-clé (ie. disponible en un seul exemplaire)
         if parentobj.category != "key_item":
-            qty_tag = self.sidemenu.game.default_font.font.render(f"x{object_couple[1]}", True, (0, 0, 0))
+            qty_tag = self.sidemenu.game.default_font.font.render(f"x{object_couple[1]}", False, (0, 0, 0))
             qty_rect = qty_tag.get_rect(topleft = np.array(icon_coords) + np.array(self.AMOUNT_ICON_OFFSET))
             self.box.blit(qty_tag, qty_rect)
         
@@ -425,7 +425,7 @@ class BagSubMenu(SubMenu):
             cat = "Objet consommable"
         if cat_raw == "key_item":
             cat = "Objet important"
-        cat_tag = self.sidemenu.game.default_font.font.render(cat, True, (0, 0, 0))
+        cat_tag = self.sidemenu.game.default_font.font.render(cat, False, (0, 0, 0))
         cat_rect = cat_tag.get_rect(center = np.array(lat_icon_coords) + np.array([1, self.CLASS_VOFFSET]))        #! Le 1 correspond à une correction graphique
         self.box.blit(cat_tag, cat_rect)
 
@@ -451,7 +451,7 @@ class BagSubMenu(SubMenu):
         splitted_desc = format(desc)
         for line in range(len(splitted_desc)):
             splitted_desc[line] = splitted_desc[line].rstrip()
-            pgdesc = self.sidemenu.game.default_font.font.render(splitted_desc[line], True, (0, 0, 0))
+            pgdesc = self.sidemenu.game.default_font.font.render(splitted_desc[line], False, (0, 0, 0))
             desc_rect = pgdesc.get_rect(center = np.array(lat_icon_coords) + np.array([1, self.CLASS_VOFFSET]) + np.array([1, self.DESC_VOFFSET]) + np.array([0, line * self.DESC_LINEHEIGHT]))        #! Le 1 correspond à une correction graphique
             self.box.blit(pgdesc, desc_rect)
         
